@@ -1,0 +1,63 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'edu.sc.seis.launch4j' version '2.5.1'
+    id 'application'
+    id 'java'
+}
+
+group 'app.nush.examclock'
+version '2.0.0'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+dependencies {
+    implementation 'com.formdev:flatlaf:2.4'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['res']
+        }
+    }
+
+    test {
+        java {
+            srcDirs = ['test']
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'app.nush.examclock.ExamClock'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+    manifest {
+        attributes 'SplashScreen-Image': '/icons/appventure_logo.png',
+                'Implementation-Title': 'Exam Clock'
+    }
+}
+
+launch4j {
+    outfile = 'exam-clock.exe'
+    mainClassName = project.mainClassName
+    icon = "${projectDir}/src/main/resources/icons/appventure_logo.ico"
+    jarTask = project.tasks.shadowJar
+    productName = 'Exam Clock'
+}
