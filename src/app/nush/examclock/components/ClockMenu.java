@@ -22,15 +22,13 @@ public class ClockMenu extends JMenuBar {
                     else FlatLightLaf.setup();
                     FlatLaf.updateUI();
                 };
-                JRadioButtonMenuItem light = new JRadioButtonMenuItem("Light");
-                JRadioButtonMenuItem dark = new JRadioButtonMenuItem("Dark");
+                JRadioButtonMenuItem light = new JRadioButtonMenuItem("Light", !examClock.isDark()), dark = new JRadioButtonMenuItem("Dark", examClock.isDark());
                 light.addActionListener(listener);
                 dark.addActionListener(listener);
                 light.setActionCommand("light");
                 dark.setActionCommand("dark");
                 bg.add(add(light));
                 bg.add(add(dark));
-                (examClock.isDark() ? dark : light).setSelected(true);
             }});
         }});
     }

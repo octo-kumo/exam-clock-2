@@ -7,8 +7,13 @@ import app.nush.examclock.utils.ApplicationLoop;
 import app.nush.examclock.utils.Fonts;
 import com.formdev.flatlaf.FlatDarculaLaf;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.util.Objects;
+
+import static javax.swing.text.StyleConstants.setIcon;
 
 public class ExamClock extends JFrame implements Config {
     private final ExamList list;
@@ -24,6 +29,12 @@ public class ExamClock extends JFrame implements Config {
         setJMenuBar(menu = new ClockMenu(this));
         add(face = new ClockFace(this), BorderLayout.CENTER);
         add(list = new ExamList(this), BorderLayout.EAST);
+
+        try {
+            setIconImage(ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/icons/appventure_logo_nobg.png"))));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) {

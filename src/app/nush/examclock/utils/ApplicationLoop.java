@@ -20,11 +20,12 @@ public class ApplicationLoop implements Runnable {
     @Override
     public void run() {
         examClock.getFace().repaint();
+        examClock.getList().repaint();
     }
 
     public void start() {
         stop();
-        timer.scheduleAtFixedRate(task = getTask(), 0, period);
+        timer.scheduleAtFixedRate(task = getTask(), period, period);
     }
 
     public void stop() {
@@ -46,5 +47,6 @@ public class ApplicationLoop implements Runnable {
 
     public void setPeriod(long period) {
         this.period = period;
+        start();
     }
 }

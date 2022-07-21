@@ -2,6 +2,7 @@ package app.nush.examclock.components;
 
 import app.nush.examclock.ExamClock;
 import app.nush.examclock.model.Exam;
+import jdk.internal.util.Preconditions;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +17,8 @@ public class ExamList extends JScrollPane {
         super(VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_NEVER);
         setViewportView(list = new Box(BoxLayout.PAGE_AXIS));
         exams = new ArrayList<>();
-        add(new Exam("CS6132", "Computer Science with alot of stuff and stuff awiidnwdnwoidnwoin wdwd", LocalDateTime.now(), LocalDateTime.now().plusHours(1)));
+        add(new Exam("MA2131", "Mathematics I", LocalDateTime.now(), LocalDateTime.now().plusMinutes(2)));
+        add(new Exam("CS6132", "Computer Science with alot of stuff and stuff awiidnwdnwoidnwoin wdwd", LocalDateTime.now(), LocalDateTime.now().plusMinutes(1)));
     }
 
     public boolean add(Exam exam) {
@@ -29,6 +31,7 @@ public class ExamList extends JScrollPane {
         int i = exams.indexOf(o);
         boolean success = exams.remove(o);
         if (success) list.remove(i);
+        list.revalidate();
         return success;
     }
 
@@ -68,11 +71,12 @@ public class ExamList extends JScrollPane {
     }
 
     public Exam get(int index) {
+        if (index < 0 || index >= exams.size()) throw new IndexOutOfBoundsException("Index out of range: " + index);
         return exams.get(index);
     }
 
     public Exam set(int index, Exam element) {
-        Objects.checkIndex(index, exams.size());
+        if (index < 0 || index >= exams.size()) throw new IndexOutOfBoundsException("Index out of range: " + index);
         return ((ExamHolder) list.getComponents()[index]).setExam(exams.set(index, element));
     }
 

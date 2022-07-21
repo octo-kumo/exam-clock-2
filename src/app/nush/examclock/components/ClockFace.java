@@ -1,13 +1,15 @@
 package app.nush.examclock.components;
 
 import app.nush.examclock.Config;
-import app.nush.examclock.ExamClock;
+import app.nush.examclock.utils.Fonts;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ public class ClockFace extends JComponent {
         scaleToSize(g);
         drawFace(g);
         drawHands(g);
+        drawDebug(g);
     }
 
     private void scaleToSize(Graphics2D g) {
@@ -117,5 +120,28 @@ public class ClockFace extends JComponent {
     private static double interpolate(double a) {
         double sq = a * a;
         return sq / (2.0 * (sq - a) + 1.0);
+    }
+
+    private long last_frame_nanos = 0;
+
+    private void drawDebug(Graphics2D g) {
+        g.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 5));
+        g.setColor(config.isDark() ? Color.WHITE : Color.BLACK);
+        int x = -200, y = 200;
+        Runtime runtime = Runtime.getRuntime();
+        g.drawString(String.format("OS: %s (%s)", System.getProperty("os.name"), System.getProperty("os.version")), x, y -= 5);
+        g.drawString(String.format("ARCH: %s (%d cores)", System.getProperty("os.arch"), runtime.availableProcessors()), x, y -= 5);
+        g.drawString(String.format("MEM: %s/%s", formatBytes(runtime.totalMemory() - runtime.freeMemory()), formatBytes(runtime.totalMemory())), x, y -= 5);
+        g.drawString(String.format("FPS: %.2f", 1e9d / -(this.last_frame_nanos - (this.last_frame_nanos = System.nanoTime()))), x, y -= 5);
+    }
+
+    public static String formatBytes(long bytes) {
+        if (-1000 < bytes && bytes < 1000) return bytes + " B";
+        CharacterIterator ci = new StringCharacterIterator("kMGTPE");
+        while (bytes <= -999_950 || bytes >= 999_950) {
+            bytes /= 1000;
+            ci.next();
+        }
+        return String.format("%.1f %cB", bytes / 1000.0, ci.current());
     }
 }
