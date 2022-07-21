@@ -6,13 +6,16 @@ import java.util.Objects;
 
 public class Fonts {
     public static Font montserrat;
+    public static Font opensans;
 
     public static void loadFonts() {
         try {
             GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
             ge.registerFont(montserrat = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(Fonts.class.getResourceAsStream("/fonts/montserrat.ttf"))));
+            ge.registerFont(opensans = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(Fonts.class.getResourceAsStream("/fonts/opensans.ttf"))));
         } catch (IOException | FontFormatException e) {
             //Handle exception
+            e.printStackTrace();
         }
     }
 }

@@ -1,17 +1,23 @@
 package app.nush.examclock.components;
 
+import app.nush.examclock.Config;
+import app.nush.examclock.ExamClock;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
+import static app.nush.examclock.utils.Fonts.montserrat;
+import static app.nush.examclock.utils.Fonts.opensans;
 import static app.nush.examclock.utils.Graphical.drawCenteredString;
+import static java.awt.Font.PLAIN;
 
 public class ClockFace extends JComponent {
-    private boolean dark = true;
     private static final RenderingHints HINTS = new RenderingHints(new HashMap<RenderingHints.Key, Object>() {{
         put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
         put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
@@ -35,12 +41,18 @@ public class ClockFace extends JComponent {
 
     private static final Color[] HAND_COLORS = {Color.BLACK, Color.BLACK, Color.RED};
     public LocalDateTime now = LocalDateTime.now();
+    private final Config config;
+
+    public ClockFace(Config config) {
+        this.config = config;
+        setFont(montserrat);
+    }
 
     @Override
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         Graphics2D g = (Graphics2D) g1d;
-        g.setBackground(dark ? Color.BLACK : Color.WHITE);
+        g.setBackground(config.isDark() ? Color.BLACK : Color.WHITE);
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setRenderingHints(HINTS);
         now = LocalDateTime.now();
@@ -86,13 +98,16 @@ public class ClockFace extends JComponent {
     }
 
     private void drawFace(Graphics2D g) {
-        g.setColor(dark ? Color.WHITE : Color.BLACK);
+        g.setColor(config.isDark() ? Color.WHITE : Color.BLACK);
         for (Ellipse2D ring : RINGS) g.draw(ring);
         for (Line2D line : LINES) g.draw(line);
         for (int i = 0, r = 140; i < 12; i++) {
-            g.setFont(g.getFont().deriveFont(i % 3 == 0 ? Font.BOLD : Font.PLAIN, i % 3 == 0 ? 32f : 24f));
+            g.setFont(g.getFont().deriveFont(i % 3 == 0 ? Font.BOLD : PLAIN, i % 3 == 0 ? 32f : 24f));
             drawCenteredString(g, String.valueOf(i == 0 ? 12 : i), (float) (r * Math.sin(mapToRadian(i / 12d))), -(float) (r * Math.cos(mapToRadian(i / 12d))));
         }
+        g.setFont(opensans.deriveFont(Font.BOLD, 48f));
+        drawCenteredString(g, now.format(DateTimeFormatter.ofPattern("hh:mm:ss")), 0, 70);
+        g.setFont(montserrat);
     }
 
     private static double mapToRadian(double alpha) {
@@ -102,14 +117,5 @@ public class ClockFace extends JComponent {
     private static double interpolate(double a) {
         double sq = a * a;
         return sq / (2.0 * (sq - a) + 1.0);
-    }
-
-    public boolean isDark() {
-        return dark;
-    }
-
-    public void setDark(boolean dark) {
-        this.dark = dark;
-        setBackground(dark ? Color.BLACK : Color.WHITE);
     }
 }

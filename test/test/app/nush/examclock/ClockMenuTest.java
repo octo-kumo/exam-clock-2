@@ -14,8 +14,8 @@ public class ClockMenuTest {
         FlatDarkLaf.setup();
         JFrame frame = new JFrame("Clock Face");
         ClockFace clockFace;
-        frame.setJMenuBar(new ClockMenu());
-        frame.setContentPane(clockFace = new ClockFace() {{
+        frame.setJMenuBar(new ClockMenu(this));
+        frame.setContentPane(clockFace = new ClockFace(this) {{
             setPreferredSize(new Dimension(800, 800));
         }});
         frame.addMouseListener(new MouseAdapter() {
