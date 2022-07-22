@@ -18,9 +18,9 @@ public class Observable<T> {
         return value;
     }
 
-    public void set(T value) {
+    public T set(T value) {
         listeners.forEach(l -> l.changed(value, this.value));
-        this.value = value;
+        return this.value = value;
     }
 
     public Observable<T> listen(ChangeListener<T> listener) {

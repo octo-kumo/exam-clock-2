@@ -68,15 +68,10 @@ public class ClockFace extends JComponent {
     }
 
     private void drawToilet(Graphics2D g) {
-        AffineTransform transform = g.getTransform();
-        g.translate(120, 120);
-        g.scale(1 / 8d, 1 / 8d);
         g.setColor(config.womanToilet().get() ? Color.RED : getForeground());
         g.fill(Icons.WOMAN);
-        g.translate(300, 0);
         g.setColor(config.manToilet().get() ? Color.RED : getForeground());
         g.fill(Icons.MAN);
-        g.setTransform(transform);
     }
 
     private void scaleToSize(Graphics2D g) {

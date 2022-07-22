@@ -1,6 +1,7 @@
 package app.nush.examclock.components.shapes;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
 import java.util.stream.IntStream;
@@ -10,16 +11,21 @@ public class Icons {
     private static final float[][] MAN_POINTS = {{81.4893f, 106.0204f}, {61.8943f, 109.3970f}, {44.7121f, 119.4351f}, {31.9078f, 134.6922f}, {24.4640f, 153.1552f}, {22.7771f, 173.0425f}, {22.8382f, 313.0323f}, {25.6587f, 322.5381f}, {32.7982f, 329.3691f}, {42.3885f, 331.8055f}, {52.0494f, 329.6274f}, {59.4536f, 323.0882f}, {62.7118f, 313.7237f}, {62.8778f, 183.7304f}, {68.2132f, 179.0604f}, {72.9029f, 184.3606f}, {72.9076f, 544.3644f}, {74.6059f, 554.1833f}, {79.6522f, 562.7400f}, {87.7018f, 568.5499f}, {97.3717f, 570.8666f}, {107.2438f, 569.6565f}, {116.0506f, 565.0315f}, {122.4278f, 557.4307f}, {125.5297f, 547.9762f}, {125.8930f, 337.9819f}, {128.7782f, 330.8691f}, {134.4860f, 335.1509f}, {134.6039f, 545.1567f}, {136.9724f, 554.8352f}, {142.5749f, 563.0292f}, {150.8507f, 568.5636f}, {160.5184f, 570.8510f}, {170.4203f, 569.7557f}, {179.2492f, 565.2013f}, {185.5800f, 557.5548f}, {188.5737f, 548.0630f}, {189.8877f, 179.0604f}, {198.9333f, 180.0083f}, {198.9333f, 310.0116f}, {200.4095f, 319.8382f}, {206.2359f, 327.8110f}, {215.3234f, 331.7107f}, {225.2123f, 330.9243f}, {233.5581f, 325.6204f}, {238.2374f, 316.8943f}, {239.0339f, 306.9697f}, {239.0186f, 166.9645f}, {237.9197f, 157.0338f}, {231.2065f, 138.2874f}, {219.1320f, 122.4427f}, {202.6476f, 111.2708f}, {193.2387f, 107.9424f}, {173.4033f, 106.0204f}, {83.3976f, 106.0204f}};
 
     public static final BasicStroke stroke = new BasicStroke(1);
-    public static final Path2D.Float MAN = process(MAN_POINTS, new Path2D.Float());
-    public static final Path2D.Float WOMAN = process(WOMAN_POINTS, new Path2D.Float());
+    public static final Shape MAN = process(MAN_POINTS, new Path2D.Float(), true);
+    public static final Shape WOMAN = process(WOMAN_POINTS, new Path2D.Float(), false);
 
 
-    private static Path2D.Float process(float[][] points, Path2D.Float path) {
+    private static Shape process(float[][] points, Path2D.Float path, boolean man) {
         path.moveTo(points[0][0], points[0][1]);
         IntStream.range(1, points.length).forEach(i -> path.lineTo(points[i][0], points[i][1]));
         path.closePath();
         path.append(new Ellipse2D.Float(84.5f, 0, 93.0f, 93.0f), false);
         path.closePath();
-        return path;
+
+        AffineTransform tx = new AffineTransform();
+        tx.translate(120, 120);
+        tx.scale(1 / 8d, 1 / 8d);
+        if (man) tx.translate(300, 0);
+        return tx.createTransformedShape(path);
     }
 }

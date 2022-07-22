@@ -7,6 +7,9 @@ import app.nush.examclock.model.Observable;
 import app.nush.examclock.utils.ApplicationLoop;
 import app.nush.examclock.utils.Fonts;
 import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -18,8 +21,8 @@ public class ExamClock extends JFrame implements Config {
     private final ExamList list;
     private final ClockMenu menu;
     private final ClockFace face;
-    private Observable<Boolean> dark = new Observable<>();
-    private Observable<Boolean> womanOccupied = new Observable<>();
+    private Observable<Boolean> dark = new Observable<>(true);
+    private Observable<Boolean> womanOccupied = new Observable<>(false);
     private Observable<Boolean> manOccupied = new Observable<>(true);
 
     public ExamClock() {
@@ -36,11 +39,18 @@ public class ExamClock extends JFrame implements Config {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        dark.listen((n, o) -> {
+            if (n) FlatDarkLaf.setup();
+            else FlatLightLaf.setup();
+            FlatLaf.updateUI();
+        });
     }
 
     public static void main(String[] args) {
         FlatDarculaLaf.setup();
         Fonts.loadFonts();
+//        Toolkit.getDefaultToolkit().setDynamicLayout(false);
 
         ExamClock examClock = new ExamClock();
         ApplicationLoop loop = new ApplicationLoop(examClock);

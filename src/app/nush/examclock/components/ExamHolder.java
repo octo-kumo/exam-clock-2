@@ -3,10 +3,8 @@ package app.nush.examclock.components;
 import app.nush.examclock.model.Exam;
 import app.nush.examclock.utils.Fonts;
 import app.nush.examclock.windows.ExamEditor;
-import com.formdev.flatlaf.FlatLaf;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -27,18 +25,18 @@ public class ExamHolder extends JPanel {
     public ExamHolder(Exam exam) {
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setComponentPopupMenu(new JPopupMenu() {{
-            add(new JMenuItem("Add") {{
-                addActionListener(e -> getList().add(e));
-            }});
-            add(new JMenuItem("Sort") {{
-                addActionListener(e -> getList().sort(e));
-            }});
-            add(new JSeparator());
             add(new JMenuItem("Edit") {{
                 addActionListener(ExamHolder.this::edit);
             }});
             add(new JMenuItem("Delete") {{
                 addActionListener(ExamHolder.this::delete);
+            }});
+            add(new JSeparator());
+            add(new JMenuItem("Add") {{
+                addActionListener(e -> getList().add(e));
+            }});
+            add(new JMenuItem("Sort") {{
+                addActionListener(e -> getList().sort(e));
             }});
         }});
         addMouseListener(new MouseAdapter() {
