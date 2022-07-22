@@ -3,6 +3,7 @@ package app.nush.examclock;
 import app.nush.examclock.components.ClockFace;
 import app.nush.examclock.components.ClockMenu;
 import app.nush.examclock.components.ExamList;
+import app.nush.examclock.model.Observable;
 import app.nush.examclock.utils.ApplicationLoop;
 import app.nush.examclock.utils.Fonts;
 import com.formdev.flatlaf.FlatDarculaLaf;
@@ -13,13 +14,13 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
-import static javax.swing.text.StyleConstants.setIcon;
-
 public class ExamClock extends JFrame implements Config {
     private final ExamList list;
     private final ClockMenu menu;
     private final ClockFace face;
-    private boolean dark = true;
+    private Observable<Boolean> dark = new Observable<>();
+    private Observable<Boolean> womanOccupied = new Observable<>();
+    private Observable<Boolean> manOccupied = new Observable<>(true);
 
     public ExamClock() {
         super("Exam Clock");
@@ -62,12 +63,17 @@ public class ExamClock extends JFrame implements Config {
     }
 
     @Override
-    public boolean isDark() {
+    public Observable<Boolean> dark() {
         return dark;
     }
 
     @Override
-    public boolean setDark(boolean value) {
-        return dark = value;
+    public Observable<Boolean> manToilet() {
+        return manOccupied;
+    }
+
+    @Override
+    public Observable<Boolean> womanToilet() {
+        return womanOccupied;
     }
 }

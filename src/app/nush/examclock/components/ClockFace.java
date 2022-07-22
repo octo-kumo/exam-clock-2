@@ -1,6 +1,7 @@
 package app.nush.examclock.components;
 
 import app.nush.examclock.Config;
+import app.nush.examclock.components.shapes.Icons;
 import app.nush.examclock.utils.Fonts;
 
 import javax.swing.*;
@@ -54,14 +55,28 @@ public class ClockFace extends JComponent {
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         Graphics2D g = (Graphics2D) g1d;
-        g.setBackground(config.isDark() ? Color.BLACK : Color.WHITE);
+        setForeground(config.dark().get() ? Color.WHITE : Color.BLACK);
+        g.setBackground(config.dark().get() ? Color.BLACK : Color.WHITE);
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setRenderingHints(HINTS);
         now = LocalDateTime.now();
         scaleToSize(g);
         drawFace(g);
+        drawToilet(g);
         drawHands(g);
         drawDebug(g);
+    }
+
+    private void drawToilet(Graphics2D g) {
+        AffineTransform transform = g.getTransform();
+        g.translate(120, 120);
+        g.scale(1 / 8d, 1 / 8d);
+        g.setColor(config.womanToilet().get() ? Color.RED : getForeground());
+        g.fill(Icons.WOMAN);
+        g.translate(300, 0);
+        g.setColor(config.manToilet().get() ? Color.RED : getForeground());
+        g.fill(Icons.MAN);
+        g.setTransform(transform);
     }
 
     private void scaleToSize(Graphics2D g) {
@@ -101,7 +116,7 @@ public class ClockFace extends JComponent {
     }
 
     private void drawFace(Graphics2D g) {
-        g.setColor(config.isDark() ? Color.WHITE : Color.BLACK);
+        g.setColor(getForeground());
         for (Ellipse2D ring : RINGS) g.draw(ring);
         for (Line2D line : LINES) g.draw(line);
         for (int i = 0, r = 140; i < 12; i++) {
@@ -126,7 +141,7 @@ public class ClockFace extends JComponent {
 
     private void drawDebug(Graphics2D g) {
         g.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 5));
-        g.setColor(config.isDark() ? Color.WHITE : Color.BLACK);
+        g.setColor(getForeground());
         int x = -200, y = 200;
         Runtime runtime = Runtime.getRuntime();
         g.drawString(String.format("OS: %s (%s)", System.getProperty("os.name"), System.getProperty("os.version")), x, y -= 5);

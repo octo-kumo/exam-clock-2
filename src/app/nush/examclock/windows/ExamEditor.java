@@ -12,7 +12,13 @@ import java.util.Date;
 import java.util.function.Supplier;
 
 public class ExamEditor extends JDialog {
+    public UserChoice getChoice() {
+        return choice;
+    }
+
     public enum EditDialogType {EDIT, CREATE}
+
+    public enum UserChoice {CANCEL, OK}
 
     private JPanel panel;
     private JButton buttonOK;
@@ -26,6 +32,8 @@ public class ExamEditor extends JDialog {
 
     private JTextField duration;
     private final Exam exam;
+
+    private UserChoice choice = UserChoice.CANCEL;
 
     public ExamEditor(Exam exam, EditDialogType type, Window parent) {
         super(parent);
@@ -140,11 +148,12 @@ public class ExamEditor extends JDialog {
         exam.desc = examDesc.getText();
         exam.startTime = LocalDateTime.of(startDate.getDate(), startTime.getTime());
         exam.endTime = LocalDateTime.of(endDate.getDate(), endTime.getTime());
+        choice = UserChoice.OK;
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
+        choice = UserChoice.CANCEL;
         dispose();
     }
 }

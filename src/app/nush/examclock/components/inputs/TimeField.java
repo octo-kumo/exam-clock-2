@@ -28,7 +28,7 @@ public class TimeField extends PlaceholderTextField implements Changeable {
         this.formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
         setFont(Fonts.opensans.deriveFont(12f));
         setPlaceholder("HH:mm:ss");
-        setTime(time);
+        setTime(time == null ? null : time.withNano(0));
 
         addFocusListener(new FocusAdapter() {
             @Override

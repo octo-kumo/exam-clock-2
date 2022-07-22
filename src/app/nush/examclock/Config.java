@@ -1,7 +1,11 @@
 package app.nush.examclock;
 
-public interface Config {
-    boolean isDark();
+import app.nush.examclock.model.Observable;
 
-    boolean setDark(boolean value);
+public interface Config {
+    Observable<Boolean> dark();
+
+    Observable<Boolean> manToilet();
+
+    Observable<Boolean> womanToilet();
 }

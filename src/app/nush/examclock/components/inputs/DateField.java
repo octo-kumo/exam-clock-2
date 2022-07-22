@@ -25,9 +25,9 @@ public class DateField extends PlaceholderTextField implements Changeable {
     };
 
     public DateField(LocalDate date) {
-        this.formatter = DateTimeFormatter.ofPattern("yy-MM-dd");
+        this.formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         setFont(Fonts.opensans.deriveFont(12f));
-        setPlaceholder("yy-MM-dd");
+        setPlaceholder("yyyy-MM-dd");
         setDate(date);
 
         addFocusListener(new FocusAdapter() {

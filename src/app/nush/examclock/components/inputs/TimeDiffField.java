@@ -12,8 +12,6 @@ import java.util.function.Supplier;
 public class TimeDiffField extends TimeField implements ChangeListener {
     private final Supplier<LocalDateTime> startTimeSupplier;
     private final Supplier<LocalDateTime> endTimeSupplier;
-    private final Consumer<LocalDateTime> endTimeConsumer;
-    private final Changeable[] changeables;
 
     public TimeDiffField(Supplier<LocalDateTime> startTimeSupplier,
                          Supplier<LocalDateTime> endTimeSupplier,
@@ -21,8 +19,6 @@ public class TimeDiffField extends TimeField implements ChangeListener {
                          Changeable[] changeables) {
         this.startTimeSupplier = startTimeSupplier;
         this.endTimeSupplier = endTimeSupplier;
-        this.endTimeConsumer = endTimeConsumer;
-        this.changeables = changeables;
 
         for (Changeable changeable : changeables) changeable.setChangeListener(this);
         setPlaceholder("00:00:00");

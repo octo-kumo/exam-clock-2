@@ -18,7 +18,7 @@ public class ClockMenu extends JMenuBar {
             add(new JMenu("Theme") {{
                 ButtonGroup bg = new ButtonGroup();
                 ActionListener listener = actionEvent -> {
-                    if (examClock.setDark("dark".equals(bg.getSelection().getActionCommand()))) FlatDarkLaf.setup();
+                    if (examClock.dark().set("dark".equals(bg.getSelection().getActionCommand()))) FlatDarkLaf.setup();
                     else FlatLightLaf.setup();
                     FlatLaf.updateUI();
                 };

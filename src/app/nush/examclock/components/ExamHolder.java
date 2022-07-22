@@ -10,11 +10,11 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.font.TextAttribute;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Map;
 
 public class ExamHolder extends JPanel {
     public static final DateTimeFormatter PATTERN = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -25,8 +25,15 @@ public class ExamHolder extends JPanel {
     private Exam exam;
 
     public ExamHolder(Exam exam) {
-        setBorder(new CompoundBorder(BorderFactory.createLineBorder(FlatLaf.isLafDark() ? Color.WHITE : Color.BLACK), new EmptyBorder(10, 10, 10, 10)));
-        setComponentPopupMenu(new JPopupMenu("WWW") {{
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+        setComponentPopupMenu(new JPopupMenu() {{
+            add(new JMenuItem("Add") {{
+                addActionListener(e -> getList().add(e));
+            }});
+            add(new JMenuItem("Sort") {{
+                addActionListener(e -> getList().sort(e));
+            }});
+            add(new JSeparator());
             add(new JMenuItem("Edit") {{
                 addActionListener(ExamHolder.this::edit);
             }});
@@ -34,35 +41,41 @@ public class ExamHolder extends JPanel {
                 addActionListener(ExamHolder.this::delete);
             }});
         }});
+        addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() > 1) ExamHolder.this.edit(new ActionEvent(e.getSource(), e.getID(), "edit"));
+            }
+
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                setBackground(UIManager.getColor("control").darker());
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                setBackground(UIManager.getColor("control"));
+            }
+        });
         GridBagLayout gridBagLayout = new GridBagLayout();
         this.setLayout(gridBagLayout);
-
-        gridBagLayout.columnWeights = new double[]{1, 0};
-        gridBagLayout.rowWeights = new double[]{1, 1, 1};
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.BOTH;
-
+        c.weightx = 1;
         c.gridx = 0;
         c.gridy = 0;
-        c.gridheight = 2;
+        c.gridwidth = 2;
         this.add(name = new JLabel(), c);
         name.setFont(Fonts.montserrat.deriveFont(Font.BOLD, 50f));
 
-        c.gridy = 2;
-        c.gridwidth = 2;
-        c.gridheight = 1;
+        c.gridy = 1;
         this.add(desc = new JLabel(), c);
         desc.setFont(Fonts.opensans.deriveFont(Font.PLAIN, 18f));
 
-        c.gridx = 1;
-        c.gridy = 0;
+        c.gridy = 2;
         c.gridwidth = 1;
-        this.add(start = new JLabel("00:00:00"), c);
+        this.add(start = new JLabel("00:00:00", SwingConstants.CENTER), c);
         start.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 40f));
-        c.gridy = 1;
-        this.add(end = new JLabel("00:00:00"), c);
+        c.gridx = 1;
+        this.add(end = new JLabel("00:00:00", SwingConstants.CENTER), c);
         end.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 40f));
-        setPreferredSize(new Dimension(500, getPreferredSize().height));
         setExam(exam);
     }
 
@@ -83,10 +96,10 @@ public class ExamHolder extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        g.drawLine(0, 0, getWidth(), 0);
         long elaps = exam.startTime.until(LocalDateTime.now(), ChronoUnit.SECONDS);
         long total = exam.startTime.until(exam.endTime, ChronoUnit.SECONDS);
-        if (elaps >= 0) {
+        if (elaps >= 0 && total != 0) {
             g.setColor(elaps >= total ? Color.GREEN.darker() : Color.WHITE.darker());
             g.fillRect(0, 0, (int) (getWidth() * elaps / total), 10);
         }
@@ -98,6 +111,8 @@ public class ExamHolder extends JPanel {
         this.desc.setText(exam.desc);
         this.start.setText(PATTERN.format(exam.startTime));
         this.end.setText(PATTERN.format(exam.endTime));
+        setPreferredSize(null);
+        setPreferredSize(new Dimension(500, getPreferredSize().height));
         setMaximumSize(getPreferredSize());
         return exam;
     }
