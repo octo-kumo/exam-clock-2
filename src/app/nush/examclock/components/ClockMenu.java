@@ -11,6 +11,7 @@ import app.nush.examclock.utils.io.FileIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 
 import static app.nush.examclock.i18n.B;
@@ -56,6 +57,9 @@ public class ClockMenu extends JMenuBar {
             }});
             add(new BooleanMenuItem("Debug", Context.debug));
             add(new BooleanMenuItem("Quality Render", Context.quality));
+            add(new BooleanMenuItem("Fullscreen", Context.fullscreen) {{
+                setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
+            }});
             add(new JSeparator());
             add(new JMenu("Clock") {{
                 add(new BooleanMenuItem("Circular exam progress", Context.face_arcs));

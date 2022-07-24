@@ -7,6 +7,8 @@ public interface Context {
     Observable<Boolean> debug = new Observable<>(true);
     Observable<Boolean> quality = new Observable<>(true);
 
+    Observable<Boolean> fullscreen = new Observable<>(false);
+
     Observable<Boolean> face_arcs = new Observable<>(false);
     Observable<Boolean> manToilet = new Observable<>(false);
     Observable<Boolean> womanToilet = new Observable<>(false);

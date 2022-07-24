@@ -3,7 +3,6 @@ package app.nush.examclock.components;
 import app.nush.examclock.Context;
 import app.nush.examclock.ExamClock;
 import app.nush.examclock.components.inputs.menu.BooleanMenuItem;
-import app.nush.examclock.components.inputs.menu.IntMenuItem;
 import app.nush.examclock.components.shapes.Toilet;
 import app.nush.examclock.i18n;
 import app.nush.examclock.model.Exam;
@@ -72,8 +71,6 @@ public class ClockFace extends JComponent {
             add(new JSeparator());
             add(new BooleanMenuItem("Debug", Context.debug));
             add(new BooleanMenuItem("Quality Render", Context.quality));
-            add(new IntMenuItem("FPS", Context.fps));
-            add(new BooleanMenuItem("Auto Optimize FPS", Context.optimizeFPS));
             add(new JSeparator());
             add(new JMenuItem(B.getString(i18n.menu_add_exam)) {{
                 addActionListener(e -> clock.getList().add(e));

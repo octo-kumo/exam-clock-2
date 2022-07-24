@@ -47,6 +47,10 @@ public class ExamClock extends JFrame implements Context {
             else FlatLightLaf.setup();
             FlatLaf.updateUI();
         });
+        Context.fullscreen.listen((n, o) -> {
+            GraphicsDevice dev = getGraphicsConfiguration().getDevice();
+            dev.setFullScreenWindow(n ? this : null);
+        });
     }
 
     public static void main(String[] args) {
