@@ -22,11 +22,22 @@ import static app.nush.examclock.utils.Graphical.drawCenteredString;
 import static java.awt.Font.PLAIN;
 
 public class ClockFace extends JComponent {
-    private static final RenderingHints HINTS = new RenderingHints(new HashMap<RenderingHints.Key, Object>() {{
-        put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+    private static final RenderingHints HINTS_QUALITY = new RenderingHints(new HashMap<RenderingHints.Key, Object>() {{
         put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+
         put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+    }});
+
+    private static final RenderingHints HINTS_FAST = new RenderingHints(new HashMap<RenderingHints.Key, Object>() {{
+        put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+        put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);
+
+        put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+        put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+        put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);
     }});
     private static final Ellipse2D[] RINGS = {new Ellipse2D.Double(-180, -180, 180 * 2, 180 * 2), new Ellipse2D.Double(-190, -190, 190 * 2, 190 * 2)};
     private static final Line2D[] LINES = new Line2D[60];
@@ -46,10 +57,10 @@ public class ClockFace extends JComponent {
     private static final Color[] HAND_COLORS = {Color.RED, Color.BLACK, Color.BLACK};
     private final double[] handAngles = {0, 0, 0};
     public LocalDateTime now = LocalDateTime.now();
-    private final Context context;
+    private ExamClock clock;
 
-    public ClockFace(Context context) {
-        this.context = context;
+    public ClockFace(ExamClock clock) {
+        this.clock = clock;
         setFont(montserrat);
     }
 
@@ -57,23 +68,24 @@ public class ClockFace extends JComponent {
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         Graphics2D g = (Graphics2D) g1d;
-        setForeground(context.dark().get() ? Color.WHITE : Color.BLACK);
-        g.setBackground(context.dark().get() ? Color.BLACK : Color.WHITE);
+        setForeground(Context.dark.get() ? Color.WHITE : Color.BLACK);
+        g.setBackground(Context.dark.get() ? Color.BLACK : Color.WHITE);
         g.clearRect(0, 0, getWidth(), getHeight());
-        g.setRenderingHints(HINTS);
+        g.setRenderingHints(Context.quality.get() ? HINTS_QUALITY : HINTS_FAST);
         now = LocalDateTime.now();
+        calculateHands();
         scaleToSize(g);
         drawFace(g);
-        drawExams(g);
+        if (Context.face_arcs.get()) drawExams(g);
         drawToilet(g);
         drawHands(g);
-        if (context.debug().get()) drawDebug(g);
+        if (Context.debug.get()) drawDebug(g);
     }
 
     private void drawToilet(Graphics2D g) {
-        g.setColor(context.womanToilet().get() ? Color.RED : getForeground());
+        g.setColor(Context.womanToilet.get() ? Color.RED : getForeground());
         g.fill(Icons.WOMAN);
-        g.setColor(context.manToilet().get() ? Color.RED : getForeground());
+        g.setColor(Context.manToilet.get() ? Color.RED : getForeground());
         g.fill(Icons.MAN);
     }
 
@@ -84,9 +96,6 @@ public class ClockFace extends JComponent {
     }
 
     private void drawHands(Graphics2D g) {
-        handAngles[0] = (now.getSecond() + interpolate(now.getNano() / 1e9d)) / 60;
-        handAngles[1] = (now.getMinute() + handAngles[0]) / 60d;
-        handAngles[2] = (now.getHour() + handAngles[1]) / 12d;
         AffineTransform transform = g.getTransform();
         for (int i = 2; i >= 0; i--) {
             g.rotate(mapToRadian(handAngles[i]));
@@ -99,6 +108,12 @@ public class ClockFace extends JComponent {
 
         g.setColor(HAND_COLORS[2].darker());
         g.fillOval(-4, -4, 8, 8);
+    }
+
+    private void calculateHands() {
+        handAngles[0] = (now.getSecond() + interpolate(now.getNano() / 1e9d)) / 60;
+        handAngles[1] = (now.getMinute() + handAngles[0]) / 60d;
+        handAngles[2] = (now.getHour() + handAngles[1]) / 12d;
     }
 
     private void drawFace(Graphics2D g) {
@@ -115,8 +130,7 @@ public class ClockFace extends JComponent {
     }
 
     private void drawExams(Graphics2D g) {
-        if (!(context instanceof ExamClock)) return;
-        ExamClock clock = (ExamClock) context;
+        if (clock == null) return;
         g.setColor(Color.WHITE);
         double hr = 105, mr = 155;
         for (Exam exam : clock.getList()) drawArcTo(g, exam.endTime, hr += 5, mr += 5);
@@ -141,7 +155,7 @@ public class ClockFace extends JComponent {
         g.drawString(String.format("OS: %s (%s)", System.getProperty("os.name"), System.getProperty("os.version")), x, y -= 5);
         g.drawString(String.format("ARCH: %s (%d cores)", System.getProperty("os.arch"), runtime.availableProcessors()), x, y -= 5);
         g.drawString(String.format("MEM: %s/%s", formatBytes(runtime.totalMemory() - runtime.freeMemory()), formatBytes(runtime.totalMemory())), x, y -= 5);
-        g.drawString(String.format("FPS: %.2f", 1e9d / -(this.last_frame_nanos - (this.last_frame_nanos = System.nanoTime()))), x, y -= 5);
+        g.drawString(String.format("FPS: %5.1f (%.0f)", 1e9d / -(this.last_frame_nanos - (this.last_frame_nanos = System.nanoTime())), ExamClock.loop.getFPS()), x, y -= 5);
     }
 
     public static String formatBytes(long bytes) {
@@ -180,9 +194,5 @@ public class ClockFace extends JComponent {
 
     private double toArcAngle(double alpha) {
         return (90 - 360 * alpha);
-    }
-
-    private double angleLock(double degree) {
-        return (degree % 360 + 360) % 360;
     }
 }

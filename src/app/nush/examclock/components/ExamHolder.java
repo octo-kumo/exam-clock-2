@@ -48,7 +48,7 @@ public class ExamHolder extends JPanel {
             }
 
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                setBackground(UIManager.getColor("control").darker());
+                setBackground(UIManager.getColor("controlHighlight"));
             }
 
             public void mouseExited(java.awt.event.MouseEvent evt) {

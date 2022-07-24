@@ -2,6 +2,7 @@ package test.app.nush.examclock;
 
 import app.nush.examclock.Context;
 import app.nush.examclock.components.ClockFace;
+import app.nush.examclock.model.Observable;
 import app.nush.examclock.utils.Fonts;
 
 import javax.swing.*;
@@ -14,13 +15,13 @@ public class ClockFaceTest {
         ClockFace clockFace;
         frame.setContentPane(clockFace = new ClockFace(new Context() {
             @Override
-            public boolean isDark() {
-                return false;
+            public Observable<Boolean> manToilet() {
+                return new Observable<>(false);
             }
 
             @Override
-            public boolean setDark(boolean value) {
-                return false;
+            public Observable<Boolean> womanToilet() {
+                return new Observable<>(false);
             }
         }) {{
             setPreferredSize(new Dimension(800, 800));

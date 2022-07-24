@@ -26,8 +26,8 @@ public class ClockMenu extends JMenuBar {
         add(new JMenu("View") {{
             add(new JMenu("Theme") {{
                 ButtonGroup bg = new ButtonGroup();
-                ActionListener listener = actionEvent -> examClock.dark().set("dark".equals(bg.getSelection().getActionCommand()));
-                JRadioButtonMenuItem light = new JRadioButtonMenuItem("Light", !examClock.dark().get()), dark = new JRadioButtonMenuItem("Dark", examClock.dark().get());
+                ActionListener listener = actionEvent -> Context.dark.set("dark".equals(bg.getSelection().getActionCommand()));
+                JRadioButtonMenuItem light = new JRadioButtonMenuItem("Light", !Context.dark.get()), dark = new JRadioButtonMenuItem("Dark", Context.dark.get());
                 light.addActionListener(listener);
                 dark.addActionListener(listener);
                 light.setActionCommand("light");
@@ -35,7 +35,12 @@ public class ClockMenu extends JMenuBar {
                 bg.add(add(light));
                 bg.add(add(dark));
             }});
+            add(new CheckboxMenuItem("Quality", Context.quality));
             add(new CheckboxMenuItem("Debug", Context.debug));
+            add(new JSeparator());
+            add(new JMenu("Clock") {{
+                add(new CheckboxMenuItem("Exam progress", Context.face_arcs));
+            }});
         }});
     }
 }

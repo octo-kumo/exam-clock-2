@@ -3,7 +3,6 @@ package app.nush.examclock;
 import app.nush.examclock.components.ClockFace;
 import app.nush.examclock.components.ClockMenu;
 import app.nush.examclock.components.ExamList;
-import app.nush.examclock.model.Observable;
 import app.nush.examclock.utils.ApplicationLoop;
 import app.nush.examclock.utils.Fonts;
 import com.formdev.flatlaf.FlatDarculaLaf;
@@ -18,11 +17,10 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class ExamClock extends JFrame implements Context {
+    public static ApplicationLoop loop;
     private final ExamList list;
     private final ClockMenu menu;
     private final ClockFace face;
-    private final Observable<Boolean> womanOccupied = new Observable<>(false);
-    private final Observable<Boolean> manOccupied = new Observable<>(true);
 
     public ExamClock() {
         super("Exam Clock");
@@ -39,7 +37,12 @@ public class ExamClock extends JFrame implements Context {
             throw new RuntimeException(e);
         }
 
-        dark.listen((n, o) -> {
+        Context.quality.listen((n, o) -> {
+            SwingUtilities.updateComponentTreeUI(this);
+            revalidate();
+            repaint();
+        });
+        Context.dark.listen((n, o) -> {
             if (n) FlatDarkLaf.setup();
             else FlatLightLaf.setup();
             FlatLaf.updateUI();
@@ -52,7 +55,7 @@ public class ExamClock extends JFrame implements Context {
 //        Toolkit.getDefaultToolkit().setDynamicLayout(false);
 
         ExamClock examClock = new ExamClock();
-        ApplicationLoop loop = new ApplicationLoop(examClock);
+        loop = new ApplicationLoop(examClock);
         examClock.pack();
         examClock.setLocationRelativeTo(null);
         examClock.setVisible(true);
@@ -69,15 +72,5 @@ public class ExamClock extends JFrame implements Context {
 
     public ClockFace getFace() {
         return face;
-    }
-
-    @Override
-    public Observable<Boolean> manToilet() {
-        return manOccupied;
-    }
-
-    @Override
-    public Observable<Boolean> womanToilet() {
-        return womanOccupied;
     }
 }

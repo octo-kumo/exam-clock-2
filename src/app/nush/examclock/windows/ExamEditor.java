@@ -6,10 +6,10 @@ import app.nush.examclock.model.Exam;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.function.Supplier;
 
 public class ExamEditor extends JDialog {
     public UserChoice getChoice() {

@@ -15,6 +15,11 @@ public class Observable<T> {
         this.value = value;
     }
 
+    public Observable(T value, ChangeListener<T> listener) {
+        this(value);
+        listen(listener);
+    }
+
     public T get() {
         return value;
     }
