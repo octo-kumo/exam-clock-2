@@ -2,23 +2,42 @@ package app.nush.examclock.components;
 
 import app.nush.examclock.Context;
 import app.nush.examclock.ExamClock;
-import app.nush.examclock.components.inputs.menu.CheckboxMenuItem;
+import app.nush.examclock.components.inputs.menu.BooleanMenuItem;
+import app.nush.examclock.components.inputs.menu.IntMenuItem;
+import app.nush.examclock.i18n;
+import app.nush.examclock.model.Exam;
+import app.nush.examclock.utils.io.FileIO;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
+
+import static app.nush.examclock.i18n.B;
 
 public class ClockMenu extends JMenuBar {
     public ClockMenu(ExamClock examClock) {
         add(new JMenu("File") {{
-            add(new JMenuItem("Open..."));
+            add(new JMenuItem("Open...") {{
+                addActionListener(e -> {
+                    if (!examClock.getList().isEmpty() && JOptionPane.showConfirmDialog(null, "Load from file even though you have exams already loaded?") != JOptionPane.OK_OPTION)
+                        return;
+                    Exam[] exams = FileIO.load();
+                    if (exams == null) return;
+                    examClock.getList().clear();
+                    examClock.getList().addAll(Arrays.asList(exams));
+                });
+            }});
+            add(new JMenuItem("Save...") {{
+                addActionListener(e -> FileIO.save(examClock.getList().toArray()));
+            }});
         }});
         add(new JMenu("Edit") {{
-            add(new JMenuItem("Add...") {{
+            add(new JMenuItem(B.getString(i18n.menu_add_exam)) {{
                 setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK));
                 addActionListener(e -> examClock.getList().add(e));
             }});
-            add(new JMenuItem("Sort") {{
+            add(new JMenuItem(B.getString(i18n.menu_sort_exam)) {{
                 setAccelerator(KeyStroke.getKeyStroke('F', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK));
                 addActionListener(e -> examClock.getList().sort(e));
             }});
@@ -35,12 +54,14 @@ public class ClockMenu extends JMenuBar {
                 bg.add(add(light));
                 bg.add(add(dark));
             }});
-            add(new CheckboxMenuItem("Quality", Context.quality));
-            add(new CheckboxMenuItem("Debug", Context.debug));
+            add(new BooleanMenuItem("Debug", Context.debug));
+            add(new BooleanMenuItem("Quality Render", Context.quality));
             add(new JSeparator());
             add(new JMenu("Clock") {{
-                add(new CheckboxMenuItem("Exam progress", Context.face_arcs));
+                add(new BooleanMenuItem("Circular exam progress", Context.face_arcs));
             }});
+            add(new IntMenuItem("FPS", Context.fps));
+            add(new BooleanMenuItem("Auto Optimize FPS", Context.optimizeFPS));
         }});
     }
 }

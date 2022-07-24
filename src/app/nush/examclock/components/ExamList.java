@@ -1,6 +1,7 @@
 package app.nush.examclock.components;
 
 import app.nush.examclock.ExamClock;
+import app.nush.examclock.i18n;
 import app.nush.examclock.model.Exam;
 import app.nush.examclock.windows.ExamEditor;
 
@@ -9,6 +10,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static app.nush.examclock.i18n.B;
 
 public class ExamList extends JScrollPane implements Iterable<Exam> {
     private final Box list;
@@ -21,16 +24,18 @@ public class ExamList extends JScrollPane implements Iterable<Exam> {
         exams = new ArrayList<>();
 
         setComponentPopupMenu(new JPopupMenu() {{
-            add(new JMenuItem("Add") {{
+            add(new JMenuItem(B.getString(i18n.menu_add_exam)) {{
                 addActionListener(ExamList.this::add);
             }});
-            add(new JMenuItem("Sort") {{
+            add(new JMenuItem(B.getString(i18n.menu_sort_exam)) {{
                 addActionListener(ExamList.this::sort);
             }});
         }});
-
-        add(new Exam("MA2131", "Mathematics I", LocalDateTime.now(), LocalDateTime.now().plusMinutes(2)));
-        add(new Exam("CS6132", "Computer Science with alot of stuff and stuff awiidnwdnwoidnwoin wdwd", LocalDateTime.now(), LocalDateTime.now().plusMinutes(1)));
+        LocalDateTime now = LocalDateTime.now().withNano(0).withSecond(0);
+        add(new Exam("MA2131", "Mathematics I",
+                now, now.plusMinutes(2)));
+        add(new Exam("CS6132", "Computer Science with alot of stuff and stuff awiidnwdnwoidnwoin wdwd",
+                now, now.plusHours(1).plusMinutes(1)));
     }
 
     protected void add(ActionEvent e) {
@@ -41,7 +46,7 @@ public class ExamList extends JScrollPane implements Iterable<Exam> {
     }
 
     protected void sort(ActionEvent e) {
-        sort(Comparator.comparing(exam -> exam.startTime));
+        sort(Comparator.comparing(exam -> exam.endTime));
     }
 
     public boolean add(Exam exam) {
@@ -110,5 +115,17 @@ public class ExamList extends JScrollPane implements Iterable<Exam> {
     @Override
     public Iterator<Exam> iterator() {
         return exams.iterator();
+    }
+
+    public int length() {
+        return exams.size();
+    }
+
+    public boolean isEmpty() {
+        return exams.isEmpty();
+    }
+
+    public Exam[] toArray() {
+        return exams.toArray(Exam[]::new);
     }
 }

@@ -1,6 +1,7 @@
 package app.nush.examclock.components;
 
 import app.nush.examclock.Context;
+import app.nush.examclock.i18n;
 import app.nush.examclock.model.Exam;
 import app.nush.examclock.utils.Fonts;
 import app.nush.examclock.windows.ExamEditor;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+import static app.nush.examclock.i18n.B;
 import static app.nush.examclock.utils.Graphical.drawCenteredString;
 
 public class ExamHolder extends JPanel {
@@ -28,17 +30,17 @@ public class ExamHolder extends JPanel {
     public ExamHolder(Exam exam) {
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setComponentPopupMenu(new JPopupMenu() {{
-            add(new JMenuItem("Edit") {{
+            add(new JMenuItem(B.getString(i18n.menu_edit_exam)) {{
                 addActionListener(ExamHolder.this::edit);
             }});
-            add(new JMenuItem("Delete") {{
+            add(new JMenuItem(B.getString(i18n.menu_delete_exam)) {{
                 addActionListener(ExamHolder.this::delete);
             }});
             add(new JSeparator());
-            add(new JMenuItem("Add") {{
+            add(new JMenuItem(B.getString(i18n.menu_add_exam)) {{
                 addActionListener(e -> getList().add(e));
             }});
-            add(new JMenuItem("Sort") {{
+            add(new JMenuItem(B.getString(i18n.menu_sort_exam)) {{
                 addActionListener(e -> getList().sort(e));
             }});
         }});
@@ -121,7 +123,6 @@ public class ExamHolder extends JPanel {
         this.desc.setText("<HTML>" + exam.desc + "</HTML>");
         this.start.setText(PATTERN.format(exam.startTime));
         this.end.setText(PATTERN.format(exam.endTime));
-        setPreferredSize(null);
         setPreferredSize(new Dimension(500, getPreferredSize().height));
         return exam;
     }

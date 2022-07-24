@@ -4,9 +4,9 @@ import app.nush.examclock.model.Observable;
 
 import javax.swing.*;
 
-public class CheckboxMenuItem extends JCheckBoxMenuItem {
+public class BooleanMenuItem extends JCheckBoxMenuItem {
 
-    public CheckboxMenuItem(String text, Observable<Boolean> prop) {
+    public BooleanMenuItem(String text, Observable<Boolean> prop) {
         super(text, prop.get());
 
         addChangeListener(e -> prop.set(isSelected()));

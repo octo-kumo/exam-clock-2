@@ -50,8 +50,9 @@ public class ExamClock extends JFrame implements Context {
     }
 
     public static void main(String[] args) {
-        FlatDarculaLaf.setup();
+        i18n.load();
         Fonts.loadFonts();
+        FlatDarculaLaf.setup();
 //        Toolkit.getDefaultToolkit().setDynamicLayout(false);
 
         ExamClock examClock = new ExamClock();

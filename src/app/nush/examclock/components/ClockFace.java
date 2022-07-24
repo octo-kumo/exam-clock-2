@@ -2,7 +2,10 @@ package app.nush.examclock.components;
 
 import app.nush.examclock.Context;
 import app.nush.examclock.ExamClock;
-import app.nush.examclock.components.shapes.Icons;
+import app.nush.examclock.components.inputs.menu.BooleanMenuItem;
+import app.nush.examclock.components.inputs.menu.IntMenuItem;
+import app.nush.examclock.components.shapes.Toilet;
+import app.nush.examclock.i18n;
 import app.nush.examclock.model.Exam;
 import app.nush.examclock.utils.Fonts;
 
@@ -16,6 +19,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 
+import static app.nush.examclock.i18n.B;
 import static app.nush.examclock.utils.Fonts.montserrat;
 import static app.nush.examclock.utils.Fonts.opensans;
 import static app.nush.examclock.utils.Graphical.drawCenteredString;
@@ -58,15 +62,32 @@ public class ClockFace extends JComponent {
     private final double[] handAngles = {0, 0, 0};
     public LocalDateTime now = LocalDateTime.now();
     private ExamClock clock;
+    private long renderTime = 0;
 
     public ClockFace(ExamClock clock) {
         this.clock = clock;
         setFont(montserrat);
+        setComponentPopupMenu(new JPopupMenu() {{
+            add(new BooleanMenuItem("Exam Progress", Context.face_arcs));
+            add(new JSeparator());
+            add(new BooleanMenuItem("Debug", Context.debug));
+            add(new BooleanMenuItem("Quality Render", Context.quality));
+            add(new IntMenuItem("FPS", Context.fps));
+            add(new BooleanMenuItem("Auto Optimize FPS", Context.optimizeFPS));
+            add(new JSeparator());
+            add(new JMenuItem(B.getString(i18n.menu_add_exam)) {{
+                addActionListener(e -> clock.getList().add(e));
+            }});
+            add(new JMenuItem(B.getString(i18n.menu_sort_exam)) {{
+                addActionListener(e -> clock.getList().sort(e));
+            }});
+        }});
     }
 
     @Override
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
+        long s = System.nanoTime();
         Graphics2D g = (Graphics2D) g1d;
         setForeground(Context.dark.get() ? Color.WHITE : Color.BLACK);
         g.setBackground(Context.dark.get() ? Color.BLACK : Color.WHITE);
@@ -80,13 +101,14 @@ public class ClockFace extends JComponent {
         drawToilet(g);
         drawHands(g);
         if (Context.debug.get()) drawDebug(g);
+        renderTime = System.nanoTime() - s;
     }
 
     private void drawToilet(Graphics2D g) {
         g.setColor(Context.womanToilet.get() ? Color.RED : getForeground());
-        g.fill(Icons.WOMAN);
+        g.fill(Toilet.WOMAN);
         g.setColor(Context.manToilet.get() ? Color.RED : getForeground());
-        g.fill(Icons.MAN);
+        g.fill(Toilet.MAN);
     }
 
     private void scaleToSize(Graphics2D g) {
@@ -132,8 +154,8 @@ public class ClockFace extends JComponent {
     private void drawExams(Graphics2D g) {
         if (clock == null) return;
         g.setColor(Color.WHITE);
-        double hr = 105, mr = 155;
-        for (Exam exam : clock.getList()) drawArcTo(g, exam.endTime, hr += 5, mr += 5);
+        double hr = 102, mr = 152;
+        for (Exam exam : clock.getList()) drawArcTo(g, exam.endTime, hr += 4, mr += 4);
     }
 
     private static double mapToRadian(double alpha) {
@@ -150,12 +172,14 @@ public class ClockFace extends JComponent {
     private void drawDebug(Graphics2D g) {
         g.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 5));
         g.setColor(getForeground());
-        int x = -200, y = 200;
+        int x = -190, y = 200;
         Runtime runtime = Runtime.getRuntime();
         g.drawString(String.format("OS: %s (%s)", System.getProperty("os.name"), System.getProperty("os.version")), x, y -= 5);
         g.drawString(String.format("ARCH: %s (%d cores)", System.getProperty("os.arch"), runtime.availableProcessors()), x, y -= 5);
-        g.drawString(String.format("MEM: %s/%s", formatBytes(runtime.totalMemory() - runtime.freeMemory()), formatBytes(runtime.totalMemory())), x, y -= 5);
-        g.drawString(String.format("FPS: %5.1f (%.0f)", 1e9d / -(this.last_frame_nanos - (this.last_frame_nanos = System.nanoTime())), ExamClock.loop.getFPS()), x, y -= 5);
+        g.drawString(String.format("MEM: %8s / %s", formatBytes(runtime.totalMemory() - runtime.freeMemory()), formatBytes(runtime.totalMemory())), x, y -= 5);
+        g.drawString(String.format("FPS: %5.1f (%d)", 1e9d / -(this.last_frame_nanos - (this.last_frame_nanos = System.nanoTime())), ExamClock.loop.getFPS()), x, y -= 5);
+        String s = getClass().getPackage().getImplementationVersion();
+        g.drawString(String.format("Ver: %s", s == null ? "dev" : s), x, y -= 5);
     }
 
     public static String formatBytes(long bytes) {
@@ -173,9 +197,9 @@ public class ClockFace extends JComponent {
         long correction = (long) (1e9d * interpolate(now.getNano() / 1e9d) - now.getNano()); // fancy second hand
         long diff = now.until(time, ChronoUnit.NANOS) - correction;
         if (diff > 1e9 * 60 * 60 * 12) return; // erm well, can't be right?
-        drawArc(g, handAngles[1], diff / 1e9d / 60 / 60, mr, Color.WHITE, 5);
+        drawArc(g, handAngles[2], diff / 1e9d / 60 / 60 / 12, hr, Color.GRAY, 3);
         if (diff > 1e9 * 60 * 60) return;
-        drawArc(g, handAngles[2], diff / 1e9d / 60 / 60 / 12, hr, Color.GRAY, 5);
+        drawArc(g, handAngles[1], diff / 1e9d / 60 / 60, mr, Color.WHITE, 3);
         if (diff > 1e9 * 60) return;
         drawArc(g, handAngles[0], diff / 1e9d / 60, 182, Color.RED, 5);
     }
@@ -194,5 +218,9 @@ public class ClockFace extends JComponent {
 
     private double toArcAngle(double alpha) {
         return (90 - 360 * alpha);
+    }
+
+    public long getRenderTime() {
+        return renderTime;
     }
 }

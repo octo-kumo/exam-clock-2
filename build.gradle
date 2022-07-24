@@ -13,6 +13,7 @@ targetCompatibility = '1.8'
 
 dependencies {
     implementation "com.formdev:flatlaf:2.4"
+    implementation 'com.google.code.gson:gson:2.9.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
     testImplementation 'ca.odell:glazedlists:0.9.7'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
@@ -55,9 +56,47 @@ jar {
 }
 
 launch4j {
-    outfile = 'exam-clock.exe'
+    outfile = "exam-clock-${project.version}.exe"
     mainClassName = project.mainClassName
     icon = "${projectDir}/res/icons/appventure_logo.ico"
     jarTask = project.tasks.shadowJar
     productName = 'Exam Clock'
+}
+
+tasks.register("depsize") {
+    description = 'Prints dependencies for "default" configuration'
+    doLast() {
+        listConfigurationDependencies(configurations.default)
+    }
+}
+
+tasks.register("depsize-all-configurations") {
+    description = 'Prints dependencies for all available configurations'
+    doLast() {
+        configurations
+                .findAll { it.isCanBeResolved() }
+                .each { listConfigurationDependencies(it) }
+    }
+}
+
+def listConfigurationDependencies(Configuration configuration) {
+    def formatStr = "%,10.2f"
+
+    def size = configuration.collect { it.length() / (1024 * 1024) }.sum()
+
+    def out = new StringBuffer()
+    out << "\nConfiguration name: \"${configuration.name}\"\n"
+    if (size) {
+        out << 'Total dependencies size:'.padRight(65)
+        out << "${String.format(formatStr, size)} Mb\n\n"
+
+        configuration.sort { -it.length() }
+                .each {
+                    out << "${it.name}".padRight(65)
+                    out << "${String.format(formatStr, (it.length() / 1024))} kb\n"
+                }
+    } else {
+        out << 'No dependencies found';
+    }
+    println(out)
 }
