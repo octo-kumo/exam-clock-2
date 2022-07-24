@@ -1,5 +1,6 @@
 package app.nush.examclock.components;
 
+import app.nush.examclock.Context;
 import app.nush.examclock.model.Exam;
 import app.nush.examclock.utils.Fonts;
 import app.nush.examclock.windows.ExamEditor;
@@ -13,6 +14,8 @@ import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+
+import static app.nush.examclock.utils.Graphical.drawCenteredString;
 
 public class ExamHolder extends JPanel {
     public static final DateTimeFormatter PATTERN = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -70,10 +73,10 @@ public class ExamHolder extends JPanel {
         c.gridy = 2;
         c.gridwidth = 1;
         this.add(start = new JLabel("00:00:00", SwingConstants.CENTER), c);
-        start.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 40f));
+        start.setFont(Fonts.spacemono.deriveFont(Font.BOLD, 40f));
         c.gridx = 1;
         this.add(end = new JLabel("00:00:00", SwingConstants.CENTER), c);
-        end.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 40f));
+        end.setFont(Fonts.spacemono.deriveFont(Font.BOLD, 40f));
         setExam(exam);
     }
 
@@ -101,17 +104,25 @@ public class ExamHolder extends JPanel {
             g.setColor(elaps >= total ? Color.GREEN.darker() : Color.WHITE.darker());
             g.fillRect(0, 0, (int) (getWidth() * elaps / total), 10);
         }
+        if (Context.debug.get()) {
+            Point p1 = start.getLocation(), p2 = end.getLocation();
+            p1.translate(start.getWidth() / 2, 5);
+            p2.translate(end.getWidth() / 2, 5);
+            g.setColor(Color.GRAY);
+            g.setFont(Fonts.spacemono.deriveFont(Font.PLAIN, 12f));
+            drawCenteredString((Graphics2D) g, exam.startTime.format(DateTimeFormatter.ISO_DATE), p1.x, p1.y);
+            drawCenteredString((Graphics2D) g, exam.endTime.format(DateTimeFormatter.ISO_DATE), p2.x, p2.y);
+        }
     }
 
     public Exam setExam(Exam exam) {
         this.exam = exam;
-        this.name.setText(exam.name);
-        this.desc.setText(exam.desc);
+        this.name.setText("<HTML>" + exam.name + "</HTML>");
+        this.desc.setText("<HTML>" + exam.desc + "</HTML>");
         this.start.setText(PATTERN.format(exam.startTime));
         this.end.setText(PATTERN.format(exam.endTime));
         setPreferredSize(null);
         setPreferredSize(new Dimension(500, getPreferredSize().height));
-        setMaximumSize(getPreferredSize());
         return exam;
     }
 

@@ -17,13 +17,12 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
-public class ExamClock extends JFrame implements Config {
+public class ExamClock extends JFrame implements Context {
     private final ExamList list;
     private final ClockMenu menu;
     private final ClockFace face;
-    private Observable<Boolean> dark = new Observable<>(true);
-    private Observable<Boolean> womanOccupied = new Observable<>(false);
-    private Observable<Boolean> manOccupied = new Observable<>(true);
+    private final Observable<Boolean> womanOccupied = new Observable<>(false);
+    private final Observable<Boolean> manOccupied = new Observable<>(true);
 
     public ExamClock() {
         super("Exam Clock");
@@ -70,11 +69,6 @@ public class ExamClock extends JFrame implements Config {
 
     public ClockFace getFace() {
         return face;
-    }
-
-    @Override
-    public Observable<Boolean> dark() {
-        return dark;
     }
 
     @Override

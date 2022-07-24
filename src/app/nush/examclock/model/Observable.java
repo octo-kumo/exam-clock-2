@@ -1,6 +1,7 @@
 package app.nush.examclock.model;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Observable<T> {
     private T value;
@@ -18,9 +19,9 @@ public class Observable<T> {
         return value;
     }
 
-    public T set(T value) {
-        listeners.forEach(l -> l.changed(value, this.value));
-        return this.value = value;
+    public void set(T value) {
+        if (!Objects.equals(this.value, value)) listeners.forEach(l -> l.changed(value, this.value));
+        this.value = value;
     }
 
     public Observable<T> listen(ChangeListener<T> listener) {

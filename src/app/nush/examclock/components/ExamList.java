@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class ExamList extends JScrollPane {
+public class ExamList extends JScrollPane implements Iterable<Exam> {
     private final Box list;
     private final ArrayList<Exam> exams;
 
@@ -47,7 +47,7 @@ public class ExamList extends JScrollPane {
     public boolean add(Exam exam) {
         boolean success = exams.add(exam);
         if (success) list.add(new ExamHolder(exam));
-        list.revalidate();
+        Optional.ofNullable(SwingUtilities.getWindowAncestor(this)).ifPresent(Component::revalidate);
         return success;
     }
 
@@ -55,7 +55,7 @@ public class ExamList extends JScrollPane {
         int i = exams.indexOf(o);
         boolean success = exams.remove(o);
         if (success) list.remove(i);
-        list.revalidate();
+        Optional.ofNullable(SwingUtilities.getWindowAncestor(this)).ifPresent(Component::revalidate);
     }
 
     public void addAll(Collection<? extends Exam> c) {
@@ -105,5 +105,10 @@ public class ExamList extends JScrollPane {
 
     public int lastIndexOf(Object o) {
         return exams.lastIndexOf(o);
+    }
+
+    @Override
+    public Iterator<Exam> iterator() {
+        return exams.iterator();
     }
 }

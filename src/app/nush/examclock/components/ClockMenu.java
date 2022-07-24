@@ -1,18 +1,27 @@
 package app.nush.examclock.components;
 
+import app.nush.examclock.Context;
 import app.nush.examclock.ExamClock;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLaf;
-import com.formdev.flatlaf.FlatLightLaf;
+import app.nush.examclock.components.inputs.menu.CheckboxMenuItem;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.Objects;
 
 public class ClockMenu extends JMenuBar {
     public ClockMenu(ExamClock examClock) {
         add(new JMenu("File") {{
             add(new JMenuItem("Open..."));
+        }});
+        add(new JMenu("Edit") {{
+            add(new JMenuItem("Add...") {{
+                setAccelerator(KeyStroke.getKeyStroke('N', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK));
+                addActionListener(e -> examClock.getList().add(e));
+            }});
+            add(new JMenuItem("Sort") {{
+                setAccelerator(KeyStroke.getKeyStroke('F', Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK));
+                addActionListener(e -> examClock.getList().sort(e));
+            }});
         }});
         add(new JMenu("View") {{
             add(new JMenu("Theme") {{
@@ -26,6 +35,7 @@ public class ClockMenu extends JMenuBar {
                 bg.add(add(light));
                 bg.add(add(dark));
             }});
+            add(new CheckboxMenuItem("Debug", Context.debug));
         }});
     }
 }

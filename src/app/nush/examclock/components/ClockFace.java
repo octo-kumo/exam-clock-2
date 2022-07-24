@@ -1,18 +1,19 @@
 package app.nush.examclock.components;
 
-import app.nush.examclock.Config;
+import app.nush.examclock.Context;
+import app.nush.examclock.ExamClock;
 import app.nush.examclock.components.shapes.Icons;
+import app.nush.examclock.model.Exam;
 import app.nush.examclock.utils.Fonts;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.Line2D;
+import java.awt.geom.*;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 
 import static app.nush.examclock.utils.Fonts.montserrat;
@@ -41,13 +42,14 @@ public class ClockFace extends JComponent {
     private static final int[][] HOUR_HAND = {{-6, 0, 6, 4, 0, -4}, {12, 15, 12, -100, -105, -100}};
     private static final int[][] MINUTE_HAND = {{-3, 0, 3, 2, 0, -2}, {20, 23, 20, -150, -155, -150}};
     private static final int[][] SECOND_HAND = {{-2, 2, 1, 0, -1}, {30, 30, -170, -175, -170}};
-
-    private static final Color[] HAND_COLORS = {Color.BLACK, Color.BLACK, Color.RED};
+    private static final int[][][] HANDS = {SECOND_HAND, MINUTE_HAND, HOUR_HAND};
+    private static final Color[] HAND_COLORS = {Color.RED, Color.BLACK, Color.BLACK};
+    private final double[] handAngles = {0, 0, 0};
     public LocalDateTime now = LocalDateTime.now();
-    private final Config config;
+    private final Context context;
 
-    public ClockFace(Config config) {
-        this.config = config;
+    public ClockFace(Context context) {
+        this.context = context;
         setFont(montserrat);
     }
 
@@ -55,22 +57,23 @@ public class ClockFace extends JComponent {
     public void paintComponent(Graphics g1d) {
         super.paintComponent(g1d);
         Graphics2D g = (Graphics2D) g1d;
-        setForeground(config.dark().get() ? Color.WHITE : Color.BLACK);
-        g.setBackground(config.dark().get() ? Color.BLACK : Color.WHITE);
+        setForeground(context.dark().get() ? Color.WHITE : Color.BLACK);
+        g.setBackground(context.dark().get() ? Color.BLACK : Color.WHITE);
         g.clearRect(0, 0, getWidth(), getHeight());
         g.setRenderingHints(HINTS);
         now = LocalDateTime.now();
         scaleToSize(g);
         drawFace(g);
+        drawExams(g);
         drawToilet(g);
         drawHands(g);
-        drawDebug(g);
+        if (context.debug().get()) drawDebug(g);
     }
 
     private void drawToilet(Graphics2D g) {
-        g.setColor(config.womanToilet().get() ? Color.RED : getForeground());
+        g.setColor(context.womanToilet().get() ? Color.RED : getForeground());
         g.fill(Icons.WOMAN);
-        g.setColor(config.manToilet().get() ? Color.RED : getForeground());
+        g.setColor(context.manToilet().get() ? Color.RED : getForeground());
         g.fill(Icons.MAN);
     }
 
@@ -81,30 +84,18 @@ public class ClockFace extends JComponent {
     }
 
     private void drawHands(Graphics2D g) {
-        double a1 = (now.getSecond() + interpolate(now.getNano() / 1e9d)) / 60;
-        double a2 = (now.getMinute() + a1) / 60d;
-        double a3 = (now.getHour() + a2) / 12d;
+        handAngles[0] = (now.getSecond() + interpolate(now.getNano() / 1e9d)) / 60;
+        handAngles[1] = (now.getMinute() + handAngles[0]) / 60d;
+        handAngles[2] = (now.getHour() + handAngles[1]) / 12d;
         AffineTransform transform = g.getTransform();
-        g.rotate(mapToRadian(a3));
-        g.setColor(HAND_COLORS[0]);
-        g.fillPolygon(HOUR_HAND[0], HOUR_HAND[1], HOUR_HAND[0].length);
-        g.setColor(Color.WHITE);
-        g.drawPolygon(HOUR_HAND[0], HOUR_HAND[1], HOUR_HAND[0].length);
-        g.setTransform(transform);
-
-        g.rotate(mapToRadian(a2));
-        g.setColor(HAND_COLORS[1]);
-        g.fillPolygon(MINUTE_HAND[0], MINUTE_HAND[1], MINUTE_HAND[0].length);
-        g.setColor(Color.WHITE);
-        g.drawPolygon(MINUTE_HAND[0], MINUTE_HAND[1], MINUTE_HAND[0].length);
-        g.setTransform(transform);
-
-        g.rotate(mapToRadian(a1));
-        g.setColor(HAND_COLORS[2]);
-        g.fillPolygon(SECOND_HAND[0], SECOND_HAND[1], SECOND_HAND[0].length);
-        g.setColor(Color.WHITE);
-        g.drawPolygon(SECOND_HAND[0], SECOND_HAND[1], SECOND_HAND[0].length);
-        g.setTransform(transform);
+        for (int i = 2; i >= 0; i--) {
+            g.rotate(mapToRadian(handAngles[i]));
+            g.setColor(HAND_COLORS[i]);
+            g.fillPolygon(HANDS[i][0], HANDS[i][1], HANDS[i][0].length);
+            g.setColor(Color.WHITE);
+            g.drawPolygon(HANDS[i][0], HANDS[i][1], HANDS[i][0].length);
+            g.setTransform(transform);
+        }
 
         g.setColor(HAND_COLORS[2].darker());
         g.fillOval(-4, -4, 8, 8);
@@ -121,6 +112,14 @@ public class ClockFace extends JComponent {
         g.setFont(opensans.deriveFont(Font.BOLD, 48f));
         drawCenteredString(g, now.format(DateTimeFormatter.ofPattern("hh:mm:ss")), 0, 70);
         g.setFont(montserrat);
+    }
+
+    private void drawExams(Graphics2D g) {
+        if (!(context instanceof ExamClock)) return;
+        ExamClock clock = (ExamClock) context;
+        g.setColor(Color.WHITE);
+        double hr = 105, mr = 155;
+        for (Exam exam : clock.getList()) drawArcTo(g, exam.endTime, hr += 5, mr += 5);
     }
 
     private static double mapToRadian(double alpha) {
@@ -153,5 +152,37 @@ public class ClockFace extends JComponent {
             ci.next();
         }
         return String.format("%.1f %cB", bytes / 1000.0, ci.current());
+    }
+
+    public void drawArcTo(Graphics2D g, LocalDateTime time, double hr, double mr) {
+        if (now.isAfter(time)) return;
+        long correction = (long) (1e9d * interpolate(now.getNano() / 1e9d) - now.getNano()); // fancy second hand
+        long diff = now.until(time, ChronoUnit.NANOS) - correction;
+        if (diff > 1e9 * 60 * 60 * 12) return; // erm well, can't be right?
+        drawArc(g, handAngles[1], diff / 1e9d / 60 / 60, mr, Color.WHITE, 5);
+        if (diff > 1e9 * 60 * 60) return;
+        drawArc(g, handAngles[2], diff / 1e9d / 60 / 60 / 12, hr, Color.GRAY, 5);
+        if (diff > 1e9 * 60) return;
+        drawArc(g, handAngles[0], diff / 1e9d / 60, 182, Color.RED, 5);
+    }
+
+    private void drawArc(Graphics2D g, double start, double extent, double r, Color color, float thickness) {
+        Color c = g.getColor();
+        g.setColor(color);
+        Path2D.Double path = new Path2D.Double();
+        double r2 = r + thickness;
+        path.append(new Arc2D.Double(-r2, -r2, r2 * 2, r2 * 2, toArcAngle(start), -extent * 360, Arc2D.OPEN), true);
+        path.append(new Arc2D.Double(-r, -r, r * 2, r * 2, toArcAngle(start + extent), extent * 360, Arc2D.OPEN), true);
+        path.closePath();
+        g.fill(path);
+        g.setColor(c);
+    }
+
+    private double toArcAngle(double alpha) {
+        return (90 - 360 * alpha);
+    }
+
+    private double angleLock(double degree) {
+        return (degree % 360 + 360) % 360;
     }
 }

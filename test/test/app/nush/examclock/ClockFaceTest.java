@@ -1,6 +1,6 @@
 package test.app.nush.examclock;
 
-import app.nush.examclock.Config;
+import app.nush.examclock.Context;
 import app.nush.examclock.components.ClockFace;
 import app.nush.examclock.utils.Fonts;
 
@@ -12,7 +12,7 @@ public class ClockFaceTest {
         Fonts.loadFonts();
         JFrame frame = new JFrame("Clock Face");
         ClockFace clockFace;
-        frame.setContentPane(clockFace = new ClockFace(new Config() {
+        frame.setContentPane(clockFace = new ClockFace(new Context() {
             @Override
             public boolean isDark() {
                 return false;
