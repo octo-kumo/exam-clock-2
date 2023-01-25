@@ -3,7 +3,6 @@ package app.nush.examclock;
 import app.nush.examclock.components.ClockFace;
 import app.nush.examclock.components.ClockMenu;
 import app.nush.examclock.components.ExamList;
-import app.nush.examclock.utils.ApplicationLoop;
 import app.nush.examclock.utils.Fonts;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -16,6 +15,8 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Objects;
 
+import static app.nush.examclock.i18n.B;
+
 public class ExamClock extends JFrame implements Context {
     public static ApplicationLoop loop;
     private final ExamList list;
@@ -23,7 +24,7 @@ public class ExamClock extends JFrame implements Context {
     private final ClockFace face;
 
     public ExamClock() {
-        super("Exam Clock");
+        super(B.getString("title"));
         setPreferredSize(new Dimension(1280, 720));
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());

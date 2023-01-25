@@ -1,7 +1,4 @@
-package app.nush.examclock.utils;
-
-import app.nush.examclock.Context;
-import app.nush.examclock.ExamClock;
+package app.nush.examclock;
 
 import java.awt.*;
 
